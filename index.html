@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Orbit Blade</title>
+    <!-- PyScript core files -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 0; 
+            background-color: #1a1a1a; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            overflow: hidden; 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+        }
+        canvas { 
+            border: 2px solid #444; 
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+            background-color: #141414;
+        }
+        #loading { 
+            position: absolute; 
+            font-size: 24px; 
+            font-weight: bold;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .spinner {
+            margin-top: 15px;
+            width: 40px;
+            height: 40px;
+            border: 4px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 1s ease-in-out infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div id="loading">
+        Carregando Antigravity Engine (PyScript + Pygame)...
+        <div class="spinner"></div>
+    </div>
+    
+    <!-- Configuração do ambiente Python no navegador -->
+    <py-config>
+        packages = ["pygame-ce"]
+    </py-config>
+    
+    <!-- Lógica principal executada nativamente em Python -->
+    <script type="py" src="./main.py"></script>
+    
+    <script>
+        // Ocultar a tela de loading assim que o canvas do Pygame for instanciado
+        const observer = new MutationObserver((mutations) => {
+            for (const mutation of mutations) {
+                if (mutation.addedNodes) {
+                    mutation.addedNodes.forEach((node) => {
+                        if (node.nodeName === 'CANVAS') {
+                            document.getElementById('loading').style.display = 'none';
+                        }
+                    });
+                }
+            }
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    </script>
+</body>
+</html>
