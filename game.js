@@ -23,6 +23,7 @@ let gameState = 'playing'; // playing, menu, gameover
 let fase = 1;
 let kills = 0;
 let moedas = 0;
+let reviveCount = 0;
 let ammo = 30;
 let maxAmmo = 30;
 let ammoPickups = [];
@@ -60,9 +61,9 @@ const sword = {
 };
 
 // Upgrades
-let swordLengthLevel = 1;
-let swordSpeedLevel = 1;
-let damageLevel = 1;
+let swordLengthLevel = 0;
+let swordSpeedLevel = 0;
+let damageLevel = 0;
 
 // Input
 const keys = { w: false, a: false, s: false, d: false, ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
@@ -240,7 +241,7 @@ function update() {
             if (z.hp <= 0) {
                 zombies.splice(i, 1);
                 kills++;
-                moedas += Math.floor(Math.random() * 3) + 1; // 1 to 3 moedas
+                moedas += Math.floor(5 * (1 + (fase * 0.1)));
                 createParticles(z.x, z.y, z.color);
             }
         }
@@ -275,7 +276,7 @@ function update() {
                 if (z.hp <= 0) {
                     zombies.splice(j, 1);
                     kills++;
-                    moedas += Math.floor(Math.random() * 3) + 1;
+                    moedas += Math.floor(5 * (1 + (fase * 0.1)));
                     createParticles(z.x, z.y, z.color);
                 }
                 hit = true;
@@ -301,6 +302,7 @@ function update() {
 
     // Next wave logic
     if (zombies.length === 0) {
+        moedas += fase * 50; // Wave completion bonus
         showUpgradeMenu();
     }
 
@@ -449,14 +451,19 @@ function showUpgradeMenu() {
     gameState = 'menu';
     menuDiv.style.display = 'flex';
     menuTitle.innerText = `Onda ${fase} Completa!`;
-    const costComprimento = swordLengthLevel * 50;
-    const costVelocidade = swordSpeedLevel * 50;
-    const costDano = damageLevel * 50;
+
+    // Calculate exponential costs
+    const costComprimento = Math.floor(100 * Math.pow(1.5, swordLengthLevel));
+    const costVelocidade = Math.floor(100 * Math.pow(1.5, swordSpeedLevel));
+    const costDano = Math.floor(100 * Math.pow(1.5, damageLevel));
+
+    const getBtnStyle = (cost) => moedas >= cost ? '' : 'disabled style="background-color: #555; cursor: not-allowed; box-shadow: none; transform: scale(1);"';
 
     buttonsDiv.innerHTML = `
-        <button id="btnComp">Comprimento (${costComprimento} moedas)</button>
-        <button id="btnVel">Velocidade (${costVelocidade} moedas)</button>
-        <button id="btnDmg">Dano (${costDano} moedas)</button>
+        <p style="margin-bottom: 10px; font-size: 20px; color: #FFDC00;">Moedas: ${moedas}</p>
+        <button id="btnComp" ${getBtnStyle(costComprimento)}>Comprimento Lv.${swordLengthLevel} (${costComprimento} moedas)</button>
+        <button id="btnVel" ${getBtnStyle(costVelocidade)}>Velocidade Lv.${swordSpeedLevel} (${costVelocidade} moedas)</button>
+        <button id="btnDmg" ${getBtnStyle(costDano)}>Dano Lv.${damageLevel} (${costDano} moedas)</button>
         <button id="btnNext" style="background-color: #2ECC40; margin-top: 10px;">Próxima Fase >></button>
     `;
 
@@ -502,11 +509,12 @@ function showGameOver() {
     menuDiv.style.display = 'flex';
     menuTitle.innerText = "Game Over";
 
-    const reviveCost = fase * 50;
+    const reviveCost = 200 * Math.pow(2, reviveCount);
+    const getBtnStyle = (cost) => moedas >= reviveCost ? '' : 'disabled style="background-color: #555; cursor: not-allowed; box-shadow: none; transform: scale(1);"';
 
     buttonsDiv.innerHTML = `
-        <p style="margin-bottom: 20px;">Kills: ${kills} | Fase alcançada: ${fase}</p>
-        <button id="btnRevive">Reviver (${reviveCost} moedas)</button>
+        <p style="margin-bottom: 20px;">Kills: ${kills} | Fase alcançada: ${fase} | Moedas: ${moedas}</p>
+        <button id="btnRevive" ${getBtnStyle(reviveCost)}>Reviver (${reviveCost} moedas)</button>
         <button id="btnRestart" style="background-color: #FF4136; margin-top: 10px;">Recomeçar</button>
     `;
 
@@ -515,6 +523,7 @@ function showGameOver() {
             moedas -= reviveCost;
             player.hp = player.maxHp;
             ammo = maxAmmo;
+            reviveCount++;
             gameState = 'playing';
             menuDiv.style.display = 'none';
         } else {
@@ -526,6 +535,7 @@ function showGameOver() {
         fase = 1;
         moedas = 0;
         kills = 0;
+        reviveCount = 0;
         player.hp = player.maxHp;
         bullets = [];
         ammo = maxAmmo;
@@ -533,9 +543,9 @@ function showGameOver() {
         sword.length = 80;
         sword.rotationSpeed = 0.05;
         sword.damage = 10;
-        swordLengthLevel = 1;
-        swordSpeedLevel = 1;
-        damageLevel = 1;
+        swordLengthLevel = 0;
+        swordSpeedLevel = 0;
+        damageLevel = 0;
         player.x = 0;
         player.y = 0;
         gameState = 'playing';
