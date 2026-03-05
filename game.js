@@ -39,7 +39,7 @@ setInterval(() => {
         ammoPickups.push({
             x: player.x + Math.cos(angle) * distance,
             y: player.y + Math.sin(angle) * distance,
-            size: 24
+            size: 48
         });
     }
 }, 12000); // 12 seconds
