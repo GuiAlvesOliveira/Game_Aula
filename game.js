@@ -18,6 +18,10 @@ const menuDiv = document.getElementById('menu');
 const menuTitle = document.getElementById('menuTitle');
 const buttonsDiv = document.getElementById('buttonsDiv');
 
+// Assets
+const ammoIcon = new Image();
+ammoIcon.src = 'assets/21882-9-bullet.png';
+
 // Game state
 let gameState = 'playing'; // playing, menu, gameover
 let fase = 1;
@@ -338,13 +342,18 @@ function draw() {
     ammoPickups.forEach(p => {
         const screenX = cw + (p.x - player.x);
         const screenY = ch + (p.y - player.y);
-        ctx.fillStyle = '#888888';
-        ctx.fillRect(screenX - p.size / 2, screenY - p.size / 2, p.size, p.size);
-        ctx.fillStyle = '#ffffff';
-        ctx.font = 'bold 16px Inter';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('R', screenX, screenY);
+
+        if (ammoIcon.complete) {
+            ctx.drawImage(ammoIcon, screenX - p.size / 2, screenY - p.size / 2, p.size, p.size);
+        } else {
+            ctx.fillStyle = '#888888';
+            ctx.fillRect(screenX - p.size / 2, screenY - p.size / 2, p.size, p.size);
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px Inter';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('R', screenX, screenY);
+        }
     });
 
     // Draw Bullets
